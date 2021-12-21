@@ -6,9 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".ui.CallFragment">
-
     <include layout="@layout/toolbar" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -24,16 +22,87 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Kasallik turi">
+                android:paddingStart="0dp"
+
+                android:clipToPadding="false"
+                app:hintTextColor="#767676"
+                android:hint="Bemorni ahvoli">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etIllnes"
+                    android:textSize="@dimen/_12sdp"
+                    android:paddingStart="0dp"
+                    android:inputType="textCapSentences"
+                    android:textColorHint="#767676"
+                    android:background="@color/white"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_45sdp"
                     android:fontFamily="@font/roboto"/>
             </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:text="Bemor holati"
+           android:textSize="@dimen/_12sdp"
+           android:fontFamily="@font/roboto"
+           android:layout_marginTop="@dimen/_32sdp"
+           android:textColor="#767676" />
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_6sdp"
+                >
+                <RadioGroup
+                    android:id="@+id/radioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/_4sdp"
+
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+                    <RadioButton
+                        android:id="@+id/radioTypeMale"
+                        android:layout_width="@dimen/_70sdp"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
+                        android:background="@drawable/radio_flat_selector"
+                        android:button="@android:color/transparent"
+                        android:checked="true"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center"
+                        android:paddingLeft="@dimen/_16sdp"
+                        android:paddingTop="@dimen/_3sdp"
+                        android:paddingRight="@dimen/_16sdp"
+                        android:paddingBottom="@dimen/_3sdp"
+                        android:text="Yengil"
+                        android:textColor="@color/radio_flat_text_selector"
+                        android:textSize="@dimen/_12sdp" />
+                    <RadioButton
+                        android:id="@+id/radioTypeFemale"
+                        android:layout_width="@dimen/_70sdp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_12sdp"
+                        android:animateLayoutChanges="true"
+                        android:background="@drawable/radio_flat_selector"
+                        android:button="@android:color/transparent"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center"
+                        android:text="Og'ir"
+                        android:paddingLeft="@dimen/_16sdp"
+                        android:paddingTop="@dimen/_3sdp"
+                        android:paddingRight="@dimen/_16sdp"
+                        android:paddingBottom="@dimen/_3sdp"
+                        android:textColor="@color/radio_flat_text_selector"
+                        android:textSize="@dimen/_12sdp" />
+                </RadioGroup>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btncall"
                 style="@style/AppTheme.GreenButton"

@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_menu"
-    app:startDestination="@id/callFragment">
+    app:startDestination="@id/splashFragment">
     <fragment
         android:id="@+id/callFragment"
         android:name="info.texnoman.engtezyordamasosiy.ui.CallFragment"
         android:label="fragment_call"
-        tools:layout="@layout/fragment_call" >
+        tools:layout="@layout/fragment_call">
         <action
             android:id="@+id/action_callFragment_to_mapFragment"
             app:destination="@id/mapFragment" />
@@ -17,5 +17,19 @@
         android:id="@+id/mapFragment"
         android:name="info.texnoman.engtezyordamasosiy.ui.MapFragment"
         android:label="fragment_map"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map" >
+        <action
+            android:id="@+id/action_mapFragment_to_commentFragment"
+            app:destination="@id/commentFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/commentFragment"
+        android:name="info.texnoman.engtezyordamasosiy.ui.CommentFragment"
+        android:label="fragment_comment"
+        tools:layout="@layout/fragment_comment" />
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="info.texnoman.engtezyordamasosiy.ui.SplashFragment"
+        android:label="fragment_splash"
+        tools:layout="@layout/fragment_splash" />
 </navigation>

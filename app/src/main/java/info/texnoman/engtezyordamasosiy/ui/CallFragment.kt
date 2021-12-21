@@ -1,4 +1,5 @@
 package info.texnoman.engtezyordamasosiy.ui
+
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
@@ -26,131 +27,147 @@ import java.util.jar.Manifest
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getSystemService
+import com.google.android.gms.tasks.OnSuccessListener
+
+import android.R.string.no
+import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.iteach.tezyordam.base.Order
+import info.texnoman.engtezyordamasosiy.ApiViewModel
+import info.texnoman.engtezyordamasosiy.network.RetrofitClient
+import info.texnoman.engtezyordamasosiy.utils.OrderIdSave
+import info.texnoman.engtezyordamasosiy.utils.Status
+import info.texnoman.engtezyordamasosiy.utils.Toolbar
+import info.texnoman.texnomart.ViewModelFactory
+import kotlinx.android.synthetic.main.fragment_call.*
+import kotlinx.coroutines.*
 
 
 class CallFragment : Fragment() {
-
     var _binding: FragmentCallBinding? = null
     val binding get() = _binding!!
     lateinit var fusetLocatonProviderClient: FusedLocationProviderClient
+
+    var currentLatLng: LatLng? = null
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentCallBinding.inflate(inflater, container, false)
-       // val mPhoneNumber =(TelephonyManager) requireActivity().getSystemService(Context.TELEPHONY_SERVICE)
-
-
-              return binding?.root
+        getLocation()
+        return binding?.root
     }
-
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        Toolbar(requireActivity(),requireView(),"Tez yordam",true)
         binding.btncall.setOnClickListener {
-                Navigation.findNavController(it).navigate(R.id.action_callFragment_to_mapFragment)
-            //startActivity(Intent(requireContext(), MapsActivity::class.java))
-            fusetLocatonProviderClient = FusedLocationProviderClient(requireContext())
-
-            val locationCallback = object : LocationCallback(){
-                override fun onLocationResult(result: LocationResult) {
-                    super.onLocationResult(result)
-                    result.locations.let { locations->
-                        for (location in locations){
-                            if (location!=null){
-                                // saveLocation(LocationBase(location.latitude,location.longitude))
-                                val myLocation = LatLng(location.latitude,location.longitude)
-                                Log.e("location",myLocation.toString())
-                                /*  mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16F), 500, null)
-                                  //mMap.addMarker(MarkerOptions().position(myLocation).title("Marker in Sydney"))
-                                  if (icon==null){
-                                      icon = mMap.addMarker(
-                                          MarkerOptions().position(myLocation)
-                                              .icon(bitmapDescriptorFromVector(R.drawable.ic_ambulance))
-                                              .anchor(0.5f, 1f))
-                                  }else{
-                                      icon?.setPosition(myLocation)
-                                  }*/
-
-
-                            }
-                        }
+          var condition:Int= 2
+            radioGroup.setOnCheckedChangeListener { group, checkedId ->
+                when (checkedId) {
+                    R.id.radioTypeMale -> {
+                     condition =2
+                    }
+                    R.id.radioTypeFemale -> {
+                     condition =1
                     }
                 }
             }
-
-            if (ActivityCompat.checkSelfPermission(
-                    requireContext(),
-                   ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    requireContext(),
-                   ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return@setOnClickListener
-            }
-            val request = LocationRequest.create().apply {
-                interval = 1000
-                fastestInterval =1000
-                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            }
-            Looper.myLooper()?.let {
-                fusetLocatonProviderClient.requestLocationUpdates(
-                    request,
-                    locationCallback,
-                    it
-                )
-            }
+ try {
+     var person =Order(etIllnes.text.toString(),"+998908316339",System.currentTimeMillis(),
+         currentLatLng!!.latitude, currentLatLng!!.longitude,condition.toInt())
+     saveOrder(person)
+ }catch (e:Exception){
+     Log.e("fkegoubuioegerg",e.toString())
+ }
 
 
+         }
+    }
+    private fun saveOrder(person: Order) = CoroutineScope(Dispatchers.IO).launch {
+        withContext(Dispatchers.Main){
+        ViewModelProvider(requireActivity(),ViewModelFactory(RetrofitClient.instance))[ApiViewModel::class.java]
+            .setOrder(person.complaint.toString(),person.phone,person.Latitude,person.longitude,person.condition)
+            .observe(viewLifecycleOwner,{status->
+                Log.e("xato",status.message.toString())
+                when(status.status){
+                    Status.SUCCESS->status.data.let{
+                        OrderIdSave.saveId(it?.data?.id!!)
+
+                    Log.e("sdlafhjkgs",OrderIdSave.getId().toString())
+                    }
+                    Status.ERROR-> status.message.let{
+                        Log.e("tostring",it.toString())
+                    }
+                }
+
+            })
+        }
+         val personCollectRef = Firebase.firestore.collection("persons")
+
+        try {
+            personCollectRef
+                .add(person)
+                .addOnSuccessListener {
+
+
+                    Navigation.findNavController(requireView()).navigate(R.id.action_callFragment_to_mapFragment)
+
+
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireActivity(),it.message,Toast.LENGTH_LONG).show()
+                }
+
+
+        }catch (e:Exception){
+            withContext(Dispatchers.Main){
+                Toast.makeText(requireContext(),e.message,Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    fun getLocation() {
+        fusetLocatonProviderClient = FusedLocationProviderClient(requireContext())
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationresult: LocationResult) {
+                super.onLocationResult(locationresult)
+                locationresult ?: return
+                currentLatLng = LatLng(
+                    locationresult.locations[locationresult.locations.size - 1].latitude,
+                    locationresult.locations[locationresult.locations.size - 1].longitude)
+                Log.e("location",currentLatLng.toString())
+
+            }
+        }
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        val request = LocationRequest.create().apply {
+            interval = 2000
+            fastestInterval = 2000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+        Looper.myLooper()?.let {
+            fusetLocatonProviderClient.requestLocationUpdates(
+                request,
+                locationCallback,
+                it
+            )
         }
 
-
-
-
-
     }
-    /* fun fusedLocation(mMap: GoogleMap) {
-         var currentLatLng: LatLng? = null
-         var fusedLocationProviderClient = FusedLocationProviderClient(requireContext())
-         var locationRequest = LocationRequest.create().apply {
-             interval = 60000
-             fastestInterval = 60000
-             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-         }
-
-         var locationcallback = object : LocationCallback() {
-             override fun onLocationResult(locationresult: LocationResult) {
-                 super.onLocationResult(locationresult)
-                 locationresult ?: return
-                 Log.e("currentLocation", currentLatLng.toString())
-                 currentLatLng = LatLng(
-                     locationresult.locations[locationresult.locations.size - 1].latitude,
-                     locationresult.locations[locationresult.locations.size - 1].longitude
-                 )
-                 for (location in locationresult.locations) {
-                     if (currentLatLng == null) {
-
-                     }
-                 }
-                 /* mMap.animateCamera(
-                     CameraUpdateFactory.newLatLng(locationresult.locations), 500, null
-                 )*/
-
-             }
-         }
-
-         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-             return
-         }
-         mMap.isMyLocationEnabled = true
-         fusedLocationProviderClient?.requestLocationUpdates(
-             locationRequest,
-             locationcallback,
-             Looper.myLooper()!!
-         )
-     }*/
 
 
 }
