@@ -93,11 +93,11 @@ class CallFragment : Fragment() {
         ViewModelProvider(requireActivity(),ViewModelFactory(RetrofitClient.instance))[ApiViewModel::class.java]
             .setOrder(person.complaint.toString(),person.phone,person.Latitude,person.longitude,person.condition)
             .observe(viewLifecycleOwner,{status->
-                Log.e("xato",status.message.toString())
+
                 when(status.status){
                     Status.SUCCESS->status.data.let{
                         OrderIdSave.saveId(it?.data?.id!!)
-
+                        setFirebase(person)
                     Log.e("sdlafhjkgs",OrderIdSave.getId().toString())
                     }
                     Status.ERROR-> status.message.let{
@@ -107,16 +107,15 @@ class CallFragment : Fragment() {
 
             })
         }
-         val personCollectRef = Firebase.firestore.collection("persons")
+    }
 
+    fun  setFirebase(person: Order)= CoroutineScope(Dispatchers.IO).launch{
+        val personCollectRef = Firebase.firestore.collection("persons")
         try {
             personCollectRef
                 .add(person)
                 .addOnSuccessListener {
-
-
                     Navigation.findNavController(requireView()).navigate(R.id.action_callFragment_to_mapFragment)
-
 
                 }
                 .addOnFailureListener {
@@ -130,7 +129,6 @@ class CallFragment : Fragment() {
             }
         }
     }
-
     fun getLocation() {
         fusetLocatonProviderClient = FusedLocationProviderClient(requireContext())
         val locationCallback = object : LocationCallback() {

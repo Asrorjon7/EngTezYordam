@@ -1,14 +1,21 @@
 package info.texnoman.engtezyordamasosiy.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import com.hsalf.smilerating.BaseRating
+import info.texnoman.engtezyordamasosiy.ApiViewModel
 import info.texnoman.engtezyordamasosiy.R
 import info.texnoman.engtezyordamasosiy.databinding.FragmentCommentBinding
+import info.texnoman.engtezyordamasosiy.network.RetrofitClient
+import info.texnoman.engtezyordamasosiy.utils.OrderIdSave
+import info.texnoman.engtezyordamasosiy.utils.Status
 import info.texnoman.engtezyordamasosiy.utils.Toolbar
+import info.texnoman.texnomart.ViewModelFactory
 
 class CommentFragment : Fragment() {
     var _binding: FragmentCommentBinding? = null
@@ -32,6 +39,25 @@ class CommentFragment : Fragment() {
                 var rating:Int =ratingView.rating
                 var corrupsia:Boolean =swith.isChecked
                var comment:String =etComment.text.toString()
+
+               /* ViewModelProvider(requireActivity(),
+                    ViewModelFactory(RetrofitClient.instance)
+                )[ApiViewModel::class.java]
+                    .setOrder(person.complaint.toString(),person.phone,person.Latitude,person.longitude,person.condition)
+                    .observe(viewLifecycleOwner,{status->
+
+                        when(status.status){
+                            Status.SUCCESS->status.data.let{
+                                OrderIdSave.saveId(it?.data?.id!!)
+                                setFirebase(person)
+                                Log.e("sdlafhjkgs", OrderIdSave.getId().toString())
+                            }
+                            Status.ERROR-> status.message.let{
+                                Log.e("tostring",it.toString())
+                            }
+                        }
+
+                    })*/
                 }
 
 

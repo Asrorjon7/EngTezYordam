@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -123,26 +124,33 @@ class MapFragment : Fragment(),
                         var orderId: String = ""
                         for (document in it.documents) {
                             if (document.get("phone").toString() == "+998908316339") {
-                                //  personCollectRef.document("+998908316339").delete()
-                                Log.e("firebasedata", document.toString())
-                                orderId = document.toObject<ComplitModel>()?.id!!
-                                break
-                                Log.e("keldi", "keldida")
+//                                //  personCollectRef.document("+998908316339").delete()
+//                                Log.e("firebasedata", document.toString())
+//                                orderId = document.toObject<ComplitModel>()?.id!!
+//                                break
+//                                Log.e("keldi", "keldida")
+
                             }
-                        }
 
-                        Log.e("orderid", orderId.toString())
+                            if (System.currentTimeMillis().toString().substring(0,8).equals(document.get("id").toString().substring(0,8))){
+                                findNavController().navigate(R.id.commentFragment)
+                            }
 
-                        if (!orderId.equals("")) {
-                            Firebase.firestore.collection("completed").document(orderId)
-                                .delete().addOnSuccessListener { it ->
-                                    Log.e("okey", "Ochdi")
-                                }
-                                .addOnFailureListener {
-                                    Log.e("uchirishdaxatolik", it.toString())
-                                }
 
                         }
+
+//                        Log.e("orderid", orderId.toString())
+//
+//                        if (!orderId.equals("")) {
+//                            Firebase.firestore.collection("completed").document(orderId)
+//                                .delete().addOnSuccessListener { it ->
+//                                    Log.e("okey", "Ochdi")
+//                                }
+//                                .addOnFailureListener {
+//                                    Log.e("uchirishdaxatolik", it.toString())
+//                                }
+//
+//                        }
                     }
                 }
                 error.let {

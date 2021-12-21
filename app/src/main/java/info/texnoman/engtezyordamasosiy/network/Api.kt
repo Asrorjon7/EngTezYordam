@@ -15,5 +15,6 @@ interface Api {
         @Query("condition") condition:Int
     ): OrderResponse
   //  complaint=1&phone=+998997256368&date=18:37:59&latitude=40.78965412&longitude=71.89556322&condition=Og'ir
+//@POST("comment")
 
 }
